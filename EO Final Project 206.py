@@ -40,6 +40,7 @@ def createDates(conn, cur):
 def getData(conn, cur):
     count=0
     date_count=0
+    # ^^^ Do you need this???
     baseurl='https://api.covid19tracker.ca/reports?date={}'
     cur.execute("CREATE TABLE IF NOT EXISTS Canada(Date_id INTEGER PRIMARY KEY,Cases INTEGER, Deaths INTEGER, Tests INTEGER, Vaccinations INTEGER, Total_Cases INTEGER, Total_Deaths INTEGER)")
     conn.commit()
@@ -94,12 +95,56 @@ def getData(conn, cur):
                 conn.commit()
 
 
+def get_US_Data(conn, cur):
+    day_count = 0
+    baseurl =  'https://api.covidtracking.com/v2/us/daily/{}.json'
+    cur.execute("CREATE TABLE IF NOT EXISTS US (date_id INTEGER PRIMARY KEY, total_cases INTEGER, total_deaths INTEGER, total_tests INTEGER, current_hospitalized INTEGER, current_in_icu INTEGER, current_on_ventilator INTEGER)")
+    conn.commit()
+    cur.execute("SELECT COUNT (date_id) FROM US")
+    table_length= cur.fetchone()[0]  
+    dates = createDates(conn, cur)
+    # ^^^ Make this be in another function?
+    for i in range(4):
+        for i in range(25):
+            cur.execute("SELECT COUNT (date_id) FROM US")
+            table_length = cur.fetchone()[0]   
+            cur.execute("SELECT MAX (date_id) FROM US")
+            if table_length <= 25:
+                cur.execute("SELECT MAX (date_id) FROM US")
+                max_date = cur.fetchone()[0]
+                if (max_date == None):
+                    date = dates[day_count]
+                    requestsurl = baseurl.format(date)
+                    day_count += 1
+                else:
+                    max_date = dates[max_date]
+                    requestsurl= baseurl.format(max_date)
+                day = requests.get(requestsurl).content
+                day_data = json.loads(day)
+                cur.execute("SELECT ID from Dates WHERE Date = ?", (day_data['data']['date'],))
+                id_date = cur.fetchone()[0]
+                day_tup = (id_date, day_data['data']['cases']['total']['value'], day_data['data']['outcomes']['death']['total']['value'], day_data['data']['testing']['total']['value'], day_data['data']['outcomes']['hospitalized']['currently']['value'], day_data['data']['outcomes']['hospitalized']['in_icu']['currently']['value'], day_data['data']['outcomes']['hospitalized']['on_ventilator']['currently']['value'])
+                cur.execute("INSERT OR IGNORE INTO US (date_id, total_cases, total_deaths, total_tests, current_hospitalized, current_in_icu, current_on_ventilator) VALUES (?,?,?,?,?,?,?)", day_tup)
+                conn.commit()
+            elif table_length < 100:
+                cur.execute("SELECT MAX (date_id) FROM US")
+                max_date = cur.fetchone()[0]
+                requestsurl = baseurl.format(dates[max_date])
+                day = requests.get(requestsurl).content
+                day_data = json.loads(day)
+                cur.execute("SELECT ID from Dates WHERE Date = ?", (day_data['data']['date'],))
+                id_date = cur.fetchone()[0]
+                day_tup = (id_date, day_data['data']['cases']['total']['value'], day_data['data']['outcomes']['death']['total']['value'], day_data['data']['testing']['total']['value'], day_data['data']['outcomes']['hospitalized']['currently']['value'], day_data['data']['outcomes']['hospitalized']['in_icu']['currently']['value'], day_data['data']['outcomes']['hospitalized']['on_ventilator']['currently']['value'])
+                cur.execute("INSERT OR IGNORE INTO US (date_id, total_cases, total_deaths, total_tests, current_hospitalized, current_in_icu, current_on_ventilator) VALUES (?,?,?,?,?,?,?)", day_tup)
+                conn.commit()
 
 def main():
     cur, conn = setUpDatabase('Covid.db')
     getData(conn, cur)
+    get_US_Data(conn, cur)
     createDates(conn, cur)
         #  How to set up conn and cur?
+        # could we do this before we make tables? to use between??
 
 if __name__ == "__main__":
     main()
