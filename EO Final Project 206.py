@@ -37,10 +37,8 @@ def createDates(conn, cur):
 
     
     
-def getData(conn, cur):
+def getDataCanada(conn, cur):
     count=0
-    date_count=0
-    # ^^^ Do you need this???
     baseurl='https://api.covid19tracker.ca/reports?date={}'
     cur.execute("CREATE TABLE IF NOT EXISTS Canada(Date_id INTEGER PRIMARY KEY,Cases INTEGER, Deaths INTEGER, Tests INTEGER, Vaccinations INTEGER, Total_Cases INTEGER, Total_Deaths INTEGER)")
     conn.commit()
@@ -140,10 +138,9 @@ def get_US_Data(conn, cur):
 
 def main():
     cur, conn = setUpDatabase('Covid.db')
-    getData(conn, cur)
+    getDataCanada(conn, cur)
     get_US_Data(conn, cur)
     createDates(conn, cur)
-        #  How to set up conn and cur?
         # could we do this before we make tables? to use between??
 
 if __name__ == "__main__":
