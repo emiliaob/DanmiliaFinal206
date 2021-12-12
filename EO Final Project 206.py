@@ -8,6 +8,8 @@ import json
 import requests
 import datetime
 import csv
+import matplotlib.pyplot as plt
+import numpy as np
 
 def readDataFromFile(filename):
     full_path = os.path.join(os.path.dirname(__file__), filename)
@@ -170,7 +172,7 @@ def average_cases(cur, conn, filename):
 
     with open(filename, "w", newline="") as outFile:
         csv_writer = csv.writer(outFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL) 
-        header = ['Average Canada COVID19 Cases over Ten Period Intervals', 'Average US COVID19 Cases over Ten Period Intervals']
+        header = ['Average Canada COVID19 Cases over Ten Period Intervals', 'Average U.S. COVID19 Cases over Ten Period Intervals']
         csv_writer.writerow(header)
         zip_object = zip(average_cases_list_CA, average_cases_list_US)
         for average_CA, average_US in zip_object:
@@ -203,7 +205,7 @@ def average_deaths(cur, conn, filename):
 
     with open(filename, "w", newline="") as outFile:
         csv_writer = csv.writer(outFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL) 
-        header = ['Average COVID19 Deaths for Canada over Ten Period Intervals', 'Average COVID19 Deaths for the United States over Ten Period Intervals']
+        header = ['Average Canada COVID19 Deaths over Ten Period Intervals', 'Average U.S. COVID19 Deaths over Ten Period Intervals']
         csv_writer.writerow(header)
         zip_object = zip(average_deaths_list_CA, average_deaths_list_US)
         for average_CA, average_US in zip_object:
@@ -214,6 +216,36 @@ def average_deaths(cur, conn, filename):
 
     return average_deaths_list_CA, average_deaths_list_US
 
+def bar_chart(CA_cases_data, US_cases_data):
+    time_periods = ['06/01/20 - 06/10/20', '06/11/20 - 06/20/20', '06/21/20 - 06/30/20', '07/01/20 - 07/10/20', '07/11/20 - 07/20/20', '07/21/20 - 7/30/20', '07/31/20 - 08/09/20', '08/10/20 - 08/19/20', '08/20/20 - 08/29/20', '08/30/20 - 09/08/20']
+    n = np.arange(len(time_periods))
+    width = 0.25
+    fig, ax = plt.subplots()
+    # CA_bars = ax.bar(n - width/2, CA_cases_data, width, label='Canada') 
+    CA_bars = ax.bar(n, CA_cases_data, width, label='Canada') 
+    # US_bars = ax.bar(n + width/2, US_cases_data, width, label='US')
+    US_bars = ax.bar(n + width, US_cases_data, width, label='US')
+    # ax.set_xticks(n, time_periods)
+    ax.set_xticks(n + width / 2)
+    plt.xticks(rotation=55, ha="right")
+    ax.set_xticklabels(time_periods)
+    ax.legend()
+    ax.set(xlabel = "Ten Day Period", ylabel = "Average Total COVID19 Cases")
+    ax.set_title("Average Total COVID19 Cases for Canada and the U.S. over 100 days", pad=25)
+    # How to add values above bars???
+    # ax.bar_label(CA_bars)
+    # ax.bar_label(US_bars)
+    # for bar in CA_bars:
+    #     height = bar.get_height()
+    #     ax.text(bar.get_x() + bar.get_width()/2., 1.05*height,'%d' % int(height),ha='right', rotation=75)
+    # for bar in US_bars:
+    #     height = bar.get_height()
+    #     ax.text(bar.get_x() + bar.get_width()/2., 1.05*height,'%d' % int(height),ha='right', rotation=75)
+    fig.tight_layout()
+    ax.autoscale_view()
+    fig.savefig("CA&US_Cases.png")
+    plt.show()
+
 def main():
     cur, conn = setUpDatabase('Covid.db')
     getDataCanada(conn, cur)
@@ -221,7 +253,7 @@ def main():
     createDates(conn, cur)
         # could we do this before we make tables? to use between??
 
-    # Check if there are 100 rows for Canada and US before processing data???
+    # Check if there are 100 rows for Canada and US before processing data??? MIGHT NOT NEED THIS!!!
     cur.execute("SELECT COUNT (date_id) FROM Canada")
     Canada_table_length= cur.fetchone()[0]  
     cur.execute("SELECT COUNT (date_id) FROM US")
@@ -230,6 +262,7 @@ def main():
     if (Canada_table_length == 100) and (US_table_length == 100):
         averageCASESCanada, averageCASESUS = average_cases(cur, conn, "Average_Cases_Data.csv")
         averageDEATHSCanada, averageDEATHSSUS = average_deaths(cur, conn, "Average_Deaths_Data.csv")
+        bar_chart(averageCASESCanada, averageCASESUS)
 
 if __name__ == "__main__":
     main()
