@@ -246,6 +246,27 @@ def bar_chart(CA_cases_data, US_cases_data):
     fig.savefig("CA&US_Cases.png")
     plt.show()
 
+
+def scatter_plot(CA_death_data, US_death_data):
+    time_periods = ['06/01/20 - 06/10/20', '06/11/20 - 06/20/20', '06/21/20 - 06/30/20', '07/01/20 - 07/10/20', '07/11/20 - 07/20/20', '07/21/20 - 7/30/20', '07/31/20 - 08/09/20', '08/10/20 - 08/19/20', '08/20/20 - 08/29/20', '08/30/20 - 09/08/20']
+    n = np.arange(len(time_periods))
+    x= n
+    fig= plt.figure()
+    width = 1
+    axes=fig.add_subplot(1,1,1)
+    axes.set_xticks(n + width / 2)
+    axes.set_xticklabels(time_periods)
+    plt.xticks(rotation=55, ha="right")
+    y= CA_death_data
+    y2= US_death_data
+    axes.scatter(x,y, s=15, c='r', edgecolor='black', label='CA Deaths')
+    axes.scatter(x, y2, s=15, c="b", edgecolor='black', label='US Deaths')
+    axes.set_title("Average Total COVID19 Deaths for Canada and the U.S. over 100 days", pad=15)
+    plt.xlabel("10 day Period")
+    plt.ylabel("Average Total COVID19 Deaths for Canada and the U.S.")
+    plt.legend(loc="upper left")
+    plt.show()
+
 def main():
     cur, conn = setUpDatabase('Covid.db')
     getDataCanada(conn, cur)
@@ -263,6 +284,7 @@ def main():
         averageCASESCanada, averageCASESUS = average_cases(cur, conn, "Average_Cases_Data.csv")
         averageDEATHSCanada, averageDEATHSSUS = average_deaths(cur, conn, "Average_Deaths_Data.csv")
         bar_chart(averageCASESCanada, averageCASESUS)
+        scatter_plot(averageDEATHSCanada, averageDEATHSSUS)
 
 if __name__ == "__main__":
     main()
