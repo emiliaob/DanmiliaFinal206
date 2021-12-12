@@ -35,8 +35,6 @@ def createDates(conn, cur):
         cur.execute("INSERT OR IGNORE INTO Dates (ID, Date) VALUES (?,?)", (i+1, days_list[i]))
     conn.commit()
     return(days_list)
-
-    
     
 def getDataCanada(conn, cur):
     count=0
