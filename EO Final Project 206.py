@@ -11,12 +11,12 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
-def readDataFromFile(filename):
-    full_path = os.path.join(os.path.dirname(__file__), filename)
-    f = open(full_path)
-    file_data = f.read()
-    f.close()
-    return file_data
+# def readDataFromFile(filename):
+#     full_path = os.path.join(os.path.dirname(__file__), filename)
+#     f = open(full_path)
+#     file_data = f.read()
+#     f.close()
+#     return file_data
  
 
 def setUpDatabase(db_name):
@@ -265,6 +265,9 @@ def scatter_plot(CA_death_data, US_death_data):
     plt.xlabel("10 day Period")
     plt.ylabel("Average Total COVID19 Deaths for Canada and the U.S.")
     plt.legend(loc="upper left")
+    fig.tight_layout()
+    axes.autoscale_view()
+    fig.savefig("CA&US_Deaths.png")
     plt.show()
 
 def main():
@@ -291,5 +294,3 @@ if __name__ == "__main__":
 
 
         
-
-# Need to make a date, and a date range table
