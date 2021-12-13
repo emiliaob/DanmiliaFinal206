@@ -11,7 +11,6 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
  
-
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
@@ -46,7 +45,6 @@ def getDataCanada(conn, cur):
             else:
                 cur.execute("SELECT MAX(date_id) FROM Canada")
                 max_date=cur.fetchone()[0]
-                # max_date_index= dates.index(max_date)
                 requestsurl= baseurl.format(dates[max_date])
                 day= requests.get(requestsurl).content
                 day_data=json.loads(day)
@@ -144,16 +142,15 @@ def get_US_Data(conn, cur):
                 cur.execute("INSERT OR IGNORE INTO US (date_id, US_total_cases, US_total_deaths, total_tests, current_hospitalized, current_in_icu, current_on_ventilator) VALUES (?,?,?,?,?,?,?)", day_tup)
                 conn.commit()
 
-def average_cases(cur, conn, filename):
+def average_cases(cur, filename):
     average_cases_list_CA = []
-    cases_list_CA = []
     average_cases_list_US = []
-    cases_list_US = []
     count = 0
     cur.execute('SELECT Canada.CA_total_cases, US.US_total_cases FROM Canada JOIN US ON Canada.date_id = US.date_id')
     cases = cur.fetchall()
-    conn.commit()
     for i in range(10):
+        cases_list_CA = []
+        cases_list_US = []
         for cases_tup in cases[count:count+10]:
             cases_list_CA.append(cases_tup[0])
             cases_list_US.append(cases_tup[1])
@@ -177,16 +174,15 @@ def average_cases(cur, conn, filename):
     return average_cases_list_CA, average_cases_list_US
 
 
-def average_deaths(cur, conn, filename):
+def average_deaths(cur, filename):
     average_deaths_list_CA = []
-    deaths_list_CA = []
     average_deaths_list_US = []
-    deaths_list_US = []
     count = 0
     cur.execute('SELECT Canada.CA_total_deaths, US.US_total_deaths FROM Canada JOIN US ON Canada.date_id = US.date_id')
     cases = cur.fetchall()
-    conn.commit()
     for i in range(10):
+        deaths_list_CA = []
+        deaths_list_US = []
         for deaths_tup in cases[count:count+10]:
             deaths_list_CA.append(deaths_tup[0])
             deaths_list_US.append(deaths_tup[1])
@@ -214,41 +210,37 @@ def bar_chart(CA_cases_data, US_cases_data):
     n = np.arange(len(time_periods))
     width = 0.25
     fig, ax = plt.subplots()
-    # CA_bars = ax.bar(n - width/2, CA_cases_data, width, label='Canada') 
     CA_bars = ax.bar(n, CA_cases_data, width, label='Canada') 
-    # US_bars = ax.bar(n + width/2, US_cases_data, width, label='US')
-    US_bars = ax.bar(n + width, US_cases_data, width, label='US')
-    # ax.set_xticks(n, time_periods)
+    US_bars = ax.bar(n + width, US_cases_data, width, label='U.S.')
     ax.set_xticks(n + width / 2)
-    plt.xticks(rotation=55, ha="right")
+    plt.xticks(rotation = 53, ha = "right")
     ax.set_xticklabels(time_periods)
     ax.legend()
     ax.set(xlabel = "Ten Day Period", ylabel = "Average Total COVID19 Cases")
-    ax.set_title("Average Total COVID19 Cases for Canada and the U.S. over 100 days", pad=25)
+    ax.set_title("Average Total COVID19 Cases for Canada and the U.S. over 100 days", loc = "right", pad = 25)
     fig.tight_layout()
     ax.autoscale_view()
     fig.savefig("CA&US_Cases.png")
     plt.show()
 
-
 def scatter_plot(CA_death_data, US_death_data):
     time_periods = ['06/01/20 - 06/10/20', '06/11/20 - 06/20/20', '06/21/20 - 06/30/20', '07/01/20 - 07/10/20', '07/11/20 - 07/20/20', '07/21/20 - 7/30/20', '07/31/20 - 08/09/20', '08/10/20 - 08/19/20', '08/20/20 - 08/29/20', '08/30/20 - 09/08/20']
     n = np.arange(len(time_periods))
-    x= n
+    x = n
     fig= plt.figure()
     width = 1
-    axes=fig.add_subplot(1,1,1)
+    axes = fig.add_subplot(1,1,1)
     axes.set_xticks(n + width / 2)
     axes.set_xticklabels(time_periods)
-    plt.xticks(rotation=55, ha="right")
+    plt.xticks(rotation = 55, ha = "right")
     y= CA_death_data
     y2= US_death_data
-    axes.scatter(x,y, s=15, c='r', edgecolor='black', label='CA Deaths')
-    axes.scatter(x, y2, s=15, c="b", edgecolor='black', label='US Deaths')
-    axes.set_title("Average Total COVID19 Deaths for Canada and the U.S. over 100 days", pad=15)
-    plt.xlabel("10 day Period")
+    axes.scatter(x, y, s = 15, c='r', edgecolor='black', label='Canada')
+    axes.scatter(x, y2, s =15, c="b", edgecolor='black', label='U.S.')
+    axes.set_title("Average Total COVID19 Deaths for Canada and the U.S. over 100 days", loc = "right", pad = 15)
+    plt.xlabel("Ten Day Period")
     plt.ylabel("Average Total COVID19 Deaths")
-    plt.legend(loc="upper left")
+    plt.legend(loc = "upper left")
     fig.tight_layout()
     axes.autoscale_view()
     fig.savefig("CA&US_Deaths.png")
@@ -259,17 +251,15 @@ def main():
     getDataCanada(conn, cur)
     get_US_Data(conn, cur)
     createDates(conn, cur)
-        # could we do this before we make tables? to use between??
 
-    # Check if there are 100 rows for Canada and US before processing data??? MIGHT NOT NEED THIS!!!
     cur.execute("SELECT COUNT (date_id) FROM Canada")
     Canada_table_length= cur.fetchone()[0]  
     cur.execute("SELECT COUNT (date_id) FROM US")
     US_table_length= cur.fetchone()[0]  
 
     if (Canada_table_length == 100) and (US_table_length == 100):
-        averageCASESCanada, averageCASESUS = average_cases(cur, conn, "Average_Cases_Data.csv")
-        averageDEATHSCanada, averageDEATHSSUS = average_deaths(cur, conn, "Average_Deaths_Data.csv")
+        averageCASESCanada, averageCASESUS = average_cases(cur, "Average_Cases_Data.csv")
+        averageDEATHSCanada, averageDEATHSSUS = average_deaths(cur, "Average_Deaths_Data.csv")
         bar_chart(averageCASESCanada, averageCASESUS)
         scatter_plot(averageDEATHSCanada, averageDEATHSSUS)
 
