@@ -230,7 +230,7 @@ def scatter_plot(CA_death_data, US_death_data):
     fig= plt.figure()
     width = 1
     axes = fig.add_subplot(1,1,1)
-    axes.set_xticks(n + width / 2)
+    axes.set_xticks(n + width / 4)
     axes.set_xticklabels(time_periods)
     plt.xticks(rotation = 55, ha = "right")
     y= CA_death_data
