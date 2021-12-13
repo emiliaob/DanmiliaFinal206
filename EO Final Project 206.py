@@ -10,13 +10,6 @@ import datetime
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
-
-# def readDataFromFile(filename):
-#     full_path = os.path.join(os.path.dirname(__file__), filename)
-#     f = open(full_path)
-#     file_data = f.read()
-#     f.close()
-#     return file_data
  
 
 def setUpDatabase(db_name):
