@@ -225,15 +225,6 @@ def bar_chart(CA_cases_data, US_cases_data):
     ax.legend()
     ax.set(xlabel = "Ten Day Period", ylabel = "Average Total COVID19 Cases")
     ax.set_title("Average Total COVID19 Cases for Canada and the U.S. over 100 days", pad=25)
-    # How to add values above bars???
-    # ax.bar_label(CA_bars)
-    # ax.bar_label(US_bars)
-    # for bar in CA_bars:
-    #     height = bar.get_height()
-    #     ax.text(bar.get_x() + bar.get_width()/2., 1.05*height,'%d' % int(height),ha='right', rotation=75)
-    # for bar in US_bars:
-    #     height = bar.get_height()
-    #     ax.text(bar.get_x() + bar.get_width()/2., 1.05*height,'%d' % int(height),ha='right', rotation=75)
     fig.tight_layout()
     ax.autoscale_view()
     fig.savefig("CA&US_Cases.png")
@@ -256,7 +247,7 @@ def scatter_plot(CA_death_data, US_death_data):
     axes.scatter(x, y2, s=15, c="b", edgecolor='black', label='US Deaths')
     axes.set_title("Average Total COVID19 Deaths for Canada and the U.S. over 100 days", pad=15)
     plt.xlabel("10 day Period")
-    plt.ylabel("Average Total COVID19 Deaths for Canada and the U.S.")
+    plt.ylabel("Average Total COVID19 Deaths")
     plt.legend(loc="upper left")
     fig.tight_layout()
     axes.autoscale_view()
