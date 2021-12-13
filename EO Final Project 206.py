@@ -162,7 +162,7 @@ def average_cases(cur, filename):
 
     with open(filename, "w", newline="") as outFile:
         csv_writer = csv.writer(outFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL) 
-        header = ['Average Canada COVID19 Cases over Ten Period Intervals', 'Average U.S. COVID19 Cases over Ten Period Intervals']
+        header = ['Average Total Canada COVID19 Cases over Ten Period Intervals', 'Average Total U.S. COVID19 Cases over Ten Period Intervals']
         csv_writer.writerow(header)
         zip_object = zip(average_cases_list_CA, average_cases_list_US)
         for average_CA, average_US in zip_object:
@@ -194,7 +194,7 @@ def average_deaths(cur, filename):
 
     with open(filename, "w", newline="") as outFile:
         csv_writer = csv.writer(outFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL) 
-        header = ['Average Canada COVID19 Deaths over Ten Period Intervals', 'Average U.S. COVID19 Deaths over Ten Period Intervals']
+        header = ['Average Total Canada COVID19 Deaths over Ten Period Intervals', 'Average Total U.S. COVID19 Deaths over Ten Period Intervals']
         csv_writer.writerow(header)
         zip_object = zip(average_deaths_list_CA, average_deaths_list_US)
         for average_CA, average_US in zip_object:
